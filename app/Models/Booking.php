@@ -34,11 +34,14 @@ class Booking extends Model
         'packet_ids',
         'start_time',
         'end_time',
+        'total_payment',
+        'payment_method',
         'status',
     ];
 
     protected $casts = [
         'packet_ids' => 'array',
+        'total_payment' => 'decimal:2',
     ];
 
     public function saveWithPackets(array $data): Booking

@@ -1,6 +1,6 @@
 <nav id="navbar" class="bg-white border-gray-200 dark:bg-gray-900 sticky top-0 z-50 transition-all ease-in-out">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="#home" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <a href="{{ route('landing') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
             <img src="/images/logo.svg" class="h-14" alt="FunksNet Logo" />
             <span class="self-center text-2xl font-black whitespace-nowrap dark:text-white">FunksNet</span>
         </a>

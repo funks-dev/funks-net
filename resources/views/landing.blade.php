@@ -156,75 +156,128 @@
 
 <!-- Services Section -->
 <section id="services">
-    <!-- Our Services -->
     <div class="mt-16 px-12">
         <h2 class="text-5xl font-bold text-black dark:text-white mb-14 text-start">Our Services</h2>
         <p class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4 text-start">Select Room</p>
 
         <!-- Room Images with text below each -->
         <div class="flex justify-center gap-8 w-full">
-            <!-- Regular Room -->
-            <div id="regular-room" class="overflow-hidden rounded-3xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg hover:bg-gray-100 hover:dark:bg-gray-800" onclick="updateCard('regular')">
-                <img src="{{ asset('images/regular.png') }}" alt="Room 1" class="w-[430px] h-[200px] object-cover transition-transform duration-300 hover:scale-105">
-                <p class="text-center mt-2 text-lg font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white">Regular Room</p>
-            </div>
-
-            <!-- VIP Room -->
-            <div id="vip-room" class="overflow-hidden rounded-3xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg hover:bg-gray-100 hover:dark:bg-gray-800" onclick="updateCard('vip')">
-                <img src="{{ asset('images/vip.png') }}" alt="Room 2" class="w-[430px] h-[200px] object-cover transition-transform duration-300 hover:scale-105">
-                <p class="text-center mt-2 text-lg font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white">VIP Room</p>
-            </div>
-
-            <!-- VVIP Room -->
-            <div id="vvip-room" class="overflow-hidden rounded-3xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg hover:bg-gray-100 hover:dark:bg-gray-800" onclick="updateCard('vvip')">
-                <img src="{{ asset('images/vvip.png') }}" alt="Room 3" class="w-[430px] h-[200px] object-cover transition-transform duration-300 hover:scale-105">
-                <p class="text-center mt-2 text-lg font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white">VVIP Room</p>
-            </div>
+            @forelse($rooms as $room)
+                <div id="{{ strtolower($room->name) }}-room"
+                     class="overflow-hidden rounded-3xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg hover:bg-gray-100 hover:dark:bg-gray-800"
+                     onclick="updateCard('{{ strtolower($room->name) }}')">
+                    <img src="{{ asset('images/' .
+                ($room->name == 'Regular Room' ? 'regular.png' :
+                ($room->name == 'VIP Room' ? 'vip.png' :
+                ($room->name == 'VVIP Room' ? 'vvip.png' : strtolower($room->name) . '.png'))
+                )) }}"
+                         alt="{{ $room->name }}"
+                         class="w-[430px] h-[200px] object-cover transition-transform duration-300 hover:scale-105">
+                    <p class="text-center mt-2 text-lg font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white">
+                        {{ $room->name }}
+                    </p>
+                </div>
+            @empty
+                <div class="text-center py-8 w-full">
+                    <p>No rooms available</p>
+                </div>
+            @endforelse
         </div>
 
-        <!-- Room Details Section (below the image gallery) -->
-        <div id="room-card" class="flex flex-wrap justify-center max-h-[50vh] mt-20 overflow-y-auto opacity-0 transform scale-95 transition-all duration-500">
-            <div class="w-full bg-[#D9D9D9] border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-                <div class="px-5 pb-5">
-                    <!-- Product Title -->
-                    <a href="#">
-                        <h5 id="room-title" class="text-xl mt-6 font-semibold tracking-tight text-gray-900 dark:text-white">Select a Room to See Details</h5>
-                    </a>
+        <!-- Room Details Section -->
+        @if(count($rooms) > 0)
+            <div id="room-card" class="flex flex-wrap justify-center max-h-[50vh] mt-20 overflow-y-auto opacity-0 transform scale-95 transition-all duration-500">
+                <div class="w-full bg-[#D9D9D9] border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+                    <div class="px-5 pb-5">
+                        <h5 id="room-title" class="text-xl mt-6 font-semibold tracking-tight text-gray-900 dark:text-white">
+                            Select a Room to See Details
+                        </h5>
 
-                    <!-- Remaining Capacity Section -->
-                    <div class="flex items-center mt-2.5 mb-5">
-                        <span id="remaining-capacity" class="text-sm font-medium text-gray-700 dark:text-gray-300">Remaining Capacity</span>
-                        <span id="room-capacity" class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">0/0</span>
-                    </div>
+                        <div class="flex items-center mt-2.5 mb-5">
+                <span id="remaining-capacity" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Remaining Capacity
+                </span>
+                            <span id="room-capacity" class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">
+                    0/0
+                </span>
+                        </div>
 
-                    <!-- Package Selection -->
-                    <div class="mb-5">
-                        <label for="package-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Package</label>
-                        <select id="package-select" class="block w-full mt-1 text-gray-900 bg-white dark:bg-gray-700 dark:text-gray-300 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:outline-none">
-                            <!-- Dynamic options will be added here -->
-                        </select>
-                    </div>
+                        <div class="mb-5">
+                            <label for="package-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Select Package
+                            </label>
+                            <select id="package-select"
+                                    class="block w-full mt-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                    onchange="handlePackageSelect(this)">
+                                <option value="">Choose a package</option>
+                            </select>
+                        </div>
 
-                    <!-- Price Display -->
-                    <div class="flex items-center justify-between">
-                        <span id="product-price" class="text-3xl font-bold text-gray-900 dark:text-white">$0</span>
-                        <a href="#" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add to cart</a>
+                        <div class="flex items-center justify-between">
+                            <span id="product-price" class="text-3xl font-bold text-gray-900 dark:text-white">Rp 0</span>
+                            <button id="payment-button"
+                                    onclick="proceedToPayment()"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                Proceed to Payment
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </section>
 
 <!-- Food & Drink Section -->
 <section id="foodDrink">
-    <!-- Food & Drink Section -->
     <div class="mt-16 px-12">
-        <h2 class="text-3xl font-bold text-black dark:text-white mb-20 text-start">Food & Drink</h2>
+        <h2 class="text-3xl font-bold text-black dark:text-white mb-20 text-start flex justify-between items-center">
+            <span>Food & Drink</span>
+            <span class="text-sm text-gray-500">Hanya Bisa Memesan di Tempat</span>
+        </h2>
         <!-- Centered Grid Container -->
         <div class="flex justify-center">
             <div id="foodGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-screen-xl">
-                <!-- Food/Drink Cards will be populated here -->
+                @forelse ($foodDrinks as $item)
+                    <div class="food-card max-w-sm bg-[#D9D9D9] border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 flex flex-col h-full transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:bg-gray-100 hover:dark:bg-gray-800">
+                        <!-- Food Item Image -->
+                        <a href="{{ $item->link ?? '#' }}">
+                            <img class="rounded-t-lg px-12 mt-6 transition-all duration-300 transform hover:scale-110"
+                                 src="{{ asset('storage/' . $item->image) }}"
+                                 alt="{{ $item->name }} Image">
+                        </a>
+                        <div class="p-5 flex flex-col justify-between flex-grow">
+                            <!-- Food Item Title -->
+                            <a href="{{ $item->link ?? '#' }}">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white transition-all duration-300 hover:text-gray-900 dark:hover:text-white">
+                                    {{ $item->name }}
+                                </h5>
+                            </a>
+                            <!-- Food Item Description -->
+                            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white flex-grow min-h-[50px] text-ellipsis overflow-hidden">
+                                {{ $item->description }}
+                            </p>
+                            <!-- Food Item Price -->
+                            <span class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                                Rp {{ number_format($item->price, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <div class="mb-4">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                            Menu Tidak Tersedia
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                            Menu makanan dan minuman sedang dalam pembaruan. Silakan hubungi staff kami untuk informasi menu terkini.
+                        </p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -237,7 +290,7 @@
 <script src="https://cdn.jsdelivr.net/npm/progressbar.js"></script>
 <script>
     // Script code for handling the scroll progress
-    var circle = new ProgressBar.Circle('#scrollProgress', {
+    const circle = new ProgressBar.Circle('#scrollProgress', {
         color: '#3D45E8', // Warna progress
         strokeWidth: 6,    // Ketebalan garis progress
         trailWidth: 6,     // Ketebalan trail (background)
@@ -247,9 +300,9 @@
     });
 
     function updateProgress() {
-        var scrollTop = window.scrollY;
-        var scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        var scrollPercent = scrollTop / scrollHeight;
+        const scrollTop = window.scrollY;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = scrollTop / scrollHeight;
         circle.set(scrollPercent);
     }
 
@@ -274,7 +327,7 @@
             const scrollPosition = window.scrollY + window.innerHeight / 2; // Middle of the viewport
 
             // Adjusted condition to detect if the section is at least 25% visible in the viewport
-            if (scrollPosition >= sectionTop + sectionHeight / 4 && scrollPosition <= sectionTop + sectionHeight - sectionHeight / 4) {
+            if (scrollPosition >= sectionTop + sectionHeight / 6 && scrollPosition <= sectionTop + sectionHeight - sectionHeight / 6) {
                 currentSection = section.getAttribute("id");
             }
         });
@@ -380,167 +433,140 @@
     // Start Auto Slide on Page Load
     startAutoSlide();
 
-    // Data for each room
-    const roomData = {
-        regular: {
-            title: 'This Is Packet On Regular Room!',
-            capacity: '5/20',
-            packages: [
-                { price: 599, label: 'Main 1 Jam - $599' },
-                { price: 699, label: 'Main 2 Jam - $699' },
-                { price: 799, label: 'Main 3 Jam - $799' },
-                { price: 899, label: 'Main 4 Jam - $899' },
-                { price: 999, label: 'Main 5 Jam - $999' }
-            ]
-        },
-        vip: {
-            title: 'This Is Packet On VIP Room!',
-            capacity: '8/20',
-            packages: [
-                { price: 799, label: 'Main 1 Jam - $799' },
-                { price: 899, label: 'Main 2 Jam - $899' },
-                { price: 999, label: 'Main 3 Jam - $999' },
-                { price: 1099, label: 'Main 4 Jam - $1099' }
-            ]
-        },
-        vvip: {
-            title: 'This Is Packet On VVIP Room!',
-            capacity: '3/20',
-            packages: [
-                { price: 999, label: 'Main 1 Jam - $999' },
-                { price: 1199, label: 'Main 2 Jam - $1199' },
-                { price: 1399, label: 'Main 3 Jam - $1399' },
-                { price: 1599, label: 'Main 4 Jam - $1599' }
-            ]
-        }
-    };
-
-    // Update the card content dynamically
-    function updateCard(roomType) {
-        const data = roomData[roomType];
-
-        // Update the card content
-        document.getElementById('room-title').textContent = data.title;
-        document.getElementById('remaining-capacity').textContent = 'Remaining Capacity in this Room';
-        document.getElementById('room-capacity').textContent = data.capacity;
-
-        // Update the package options dynamically
-        const packageSelect = document.getElementById('package-select');
-        packageSelect.innerHTML = ''; // Clear current options
-        data.packages.forEach(packageOption => {
-            const option = document.createElement('option');
-            option.value = packageOption.price;
-            option.textContent = packageOption.label;
-            packageSelect.appendChild(option);
-        });
-
-        // Update the price display
-        const priceDisplay = document.getElementById('product-price');
-        priceDisplay.textContent = `$${data.packages[0].price}`;
-
-        // Show the card with animation
-        const roomCard = document.getElementById('room-card');
-        roomCard.classList.remove('opacity-0', 'scale-95');
-        roomCard.classList.add('opacity-100', 'scale-100');
-    }
-
-    // Handle package change to update price
-    const packageSelect = document.getElementById('package-select');
-    const priceDisplay = document.getElementById('product-price');
-    packageSelect.addEventListener('change', function() {
-        const selectedPrice = packageSelect.value;
-        priceDisplay.textContent = `$${selectedPrice}`;
+    // Clear localStorage on page load
+    window.addEventListener('load', function() {
+        localStorage.removeItem('selectedRoom');
+        localStorage.removeItem('selectedPackage');
+        localStorage.removeItem('price');
     });
 
-    // Data for Food Items
-    const foodItems = [
-        {
-            image: 'ricebowl-ayam-kecap.png',
-            name: 'Rice Bowl with Chicken',
-            description: 'A delicious rice bowl with grilled chicken and a savory soy sauce glaze, perfect for a quick meal or lunch.',
-            link: '#'
-        },
-        {
-            image: 'ricebowl-ayam-katsu.png',
-            name: 'Rice Bowl Ayam Katsu',
-            description: 'A healthy and tasty katsu dish with vegetables.',
-            link: '#'
-        },
-        {
-            image: 'ricebowl-ayam-sayur.png',
-            name: 'Rice Bowl Ayam Sayur',
-            description: 'A classic chicken dish with spicy sauce and vegetables.',
-            link: '#'
-        },
-        {
-            image: 'ricebowl-ayam-teriyaki.png',
-            name: 'Rice Bowl Ayam Teriyaki',
-            description: 'A classic chicken teriyaki dish with sweet sauce and vegetables.',
-            link: '#'
-        },
-        {
-            image: 'popmie.png',
-            name: 'Pop Mie Ayam Pedas Dower',
-            description: 'A spicy noodle chicken dish with vegetables.',
-            link: '#'
-        },
-        {
-            image: 'ice-orange.png',
-            name: 'Ice Orange',
-            description: 'A fresh ice orange sweet flavour.',
-            link: '#'
-        },
-        {
-            image: 'ice-tea.png',
-            name: 'Ice Tea',
-            description: 'A fresh ice tea sweet flavour & juicy.',
-            link: '#'
-        },
-        {
-            image: 'mineral.png',
-            name: 'Mineral Water',
-            description: 'A fresh mineral water healty for your body.',
-            link: '#'
-        },
-        {
-            image: 'ice-coffee.png',
-            name: 'Ice Coffee',
-            description: 'A good coffee ice for your tired body.',
-            link: '#'
-        },
-        {
-            image: 'chocolate-milk.png',
-            name: 'Chocolate Milk',
-            description: 'A good milk ice chocolate sweet & creamy.',
-            link: '#'
-        },
-    ];
+    // Format the price with a thousands separator
+    function formatPrice(price) {
+        return new Intl.NumberFormat('id-ID').format(price);
+    }
+
+    // Pass the data from Laravel's Blade to JavaScript
+    const rooms = @json($rooms);
+    const packets = @json($packets);
+    const roomPackets = @json($roomPackets);
+
+    // Create room data map for easy access
+    const roomData = {};
+
+    rooms.forEach(room => {
+        roomData[room.id] = {
+            title: room.name,
+            capacity: `${room.remaining_capacity}/${room.capacity}`,
+            packages: []
+        };
+    });
+
+    roomPackets.forEach(roomPacket => {
+        const roomId = roomPacket.room_id;
+        const packet = packets.find(p => p.id === roomPacket.packet_id);
+
+        if (roomData[roomId] && packet) {
+            roomData[roomId].packages.push({
+                id: packet.id,
+                price: roomPacket.price,
+                label: packet.name
+            });
+        }
+    });
+
+    function updateCard(roomName) {
+        const room = Object.values(roomData).find(r => r.title.toLowerCase() === roomName);
+
+        if (room) {
+            // Update room details in the UI
+            document.getElementById('room-title').textContent = room.title;
+            document.getElementById('remaining-capacity').textContent = 'Remaining Capacity';
+            document.getElementById('room-capacity').textContent = room.capacity;
+
+            // Update package select options
+            const packageSelect = document.getElementById('package-select');
+            packageSelect.innerHTML = '<option value="">Choose a package</option>'; // Add default option
+
+            room.packages.forEach(pkg => {
+                const option = document.createElement('option');
+                option.value = pkg.price;
+                option.textContent = `${pkg.label} - Rp ${formatPrice(pkg.price)}`;
+                packageSelect.appendChild(option);
+            });
+
+            // Reset price display
+            document.getElementById('product-price').textContent = 'Rp 0';
+
+            // Store selected room and clear package data
+            localStorage.setItem('selectedRoom', room.title);
+            localStorage.removeItem('selectedPackage');
+            localStorage.removeItem('price');
+
+            // Show the room details section with animation
+            const roomCard = document.getElementById('room-card');
+            roomCard.classList.remove('opacity-0', 'scale-95');
+            roomCard.classList.add('opacity-100', 'scale-100');
+        }
+    }
+
+    // Handle package selection change
+    document.getElementById('package-select').addEventListener('change', function() {
+        const selectedPrice = this.value;
+        const selectedOption = this.options[this.selectedIndex];
+
+        if (!selectedPrice || selectedPrice === "") {
+            document.getElementById('product-price').textContent = 'Rp 0';
+            localStorage.removeItem('selectedPackage');
+            localStorage.removeItem('price');
+            return;
+        }
+
+        const selectedPackage = selectedOption.text;
+        document.getElementById('product-price').textContent = `Rp ${formatPrice(selectedPrice)}`;
+
+        // Store selected package data
+        localStorage.setItem('selectedPackage', selectedPackage);
+        localStorage.setItem('price', selectedPrice);
+    });
+
+    // Handle payment button click
+    document.getElementById('payment-button').addEventListener('click', function() {
+        const selectedRoom = localStorage.getItem('selectedRoom');
+        const selectedPackage = localStorage.getItem('selectedPackage');
+        const price = localStorage.getItem('price');
+
+        console.log('Payment button clicked:', {
+            selectedRoom,
+            selectedPackage,
+            price
+        });
+
+        if (!selectedRoom || !selectedPackage || !price) {
+            alert('Please select both room and package before proceeding to payment.');
+            return;
+        }
+
+        // Redirect to payment confirmation page
+        window.location.href = '/payments/payment-confirmation';
+    });
 
     // Function to generate and display food cards
     function displayFoodItems() {
         const foodGrid = document.getElementById('foodGrid');
+        if (!foodGrid) {
+            console.error('Food grid element not found');
+            return;
+        }
+        console.log('Food Grid found:', foodGrid);
 
         foodItems.forEach(item => {
             // Create a new div element for the card
             const card = document.createElement('div');
             card.classList.add(
-                'max-w-sm',
-                'bg-[#D9D9D9]',
-                'border',
-                'border-gray-200',
-                'rounded-lg',
-                'shadow',
-                'dark:bg-gray-800',
-                'dark:border-gray-700',
-                'flex',
-                'flex-col',
-                'transform', // Add transform class for animation
-                'transition-all', // Add smooth transition for hover effects
-                'duration-300',  // Duration of the animation
-                'hover:scale-105', // Hover effect to scale the card slightly
-                'hover:shadow-xl', // Add more shadow when hovered
-                'hover:bg-gray-100', // Change background on hover (light mode)
-                'hover:dark:bg-gray-800' // Change background on hover (dark mode)
+                'max-w-sm', 'bg-[#D9D9D9]', 'border', 'border-gray-200', 'rounded-lg', 'shadow',
+                'dark:bg-gray-800', 'dark:border-gray-700', 'flex', 'flex-col', 'h-full',
+                'transform', 'transition-all', 'duration-300', 'hover:scale-105', 'hover:shadow-xl',
+                'hover:bg-gray-100', 'hover:dark:bg-gray-800'
             );
 
             // Create the image link
@@ -548,13 +574,7 @@
             imgLink.setAttribute('href', item.link);
             const img = document.createElement('img');
             img.classList.add(
-                'rounded-t-lg',
-                'px-12',
-                'mt-6',
-                'transition-all', // Smooth transition for image hover
-                'duration-300',
-                'transform',
-                'hover:scale-110' // Zoom in the image slightly on hover
+                'rounded-t-lg', 'px-12', 'mt-6', 'transition-all', 'duration-300', 'transform', 'hover:scale-110'
             );
             img.setAttribute('src', `images/${item.image}`);
             img.setAttribute('alt', 'Food Image');
@@ -564,28 +584,16 @@
             // Create the card body (content below the image)
             const cardBody = document.createElement('div');
             cardBody.classList.add(
-                'p-5',
-                'flex',
-                'flex-col',
-                'justify-between',
-                'h-full'
-            ); // Ensure the body takes full height
+                'p-5', 'flex', 'flex-col', 'justify-between', 'flex-grow' // This ensures the card body takes up remaining space
+            );
 
             // Title link
             const titleLink = document.createElement('a');
             titleLink.setAttribute('href', item.link);
             const title = document.createElement('h5');
             title.classList.add(
-                'mb-2',
-                'text-2xl',
-                'font-bold',
-                'tracking-tight',
-                'text-gray-900',
-                'dark:text-white',
-                'transition-all', // Smooth transition for title color change
-                'duration-300',
-                'hover:text-gray-900', // Hover effect to change text color
-                'dark:hover:text-white'
+                'mb-2', 'text-2xl', 'font-bold', 'tracking-tight', 'text-gray-900', 'dark:text-white',
+                'transition-all', 'duration-300', 'hover:text-gray-900', 'dark:hover:text-white'
             );
             title.textContent = item.name;
             titleLink.appendChild(title);
@@ -594,48 +602,16 @@
             // Description
             const description = document.createElement('p');
             description.classList.add(
-                'mb-3',
-                'font-normal',
-                'text-gray-700',
-                'dark:text-gray-400',
-                'transition-colors', // Smooth color change for description
-                'duration-300',
-                'hover:text-gray-900', // Hover effect to change text color
-                'dark:hover:text-white'
+                'mb-3', 'font-normal', 'text-gray-700', 'dark:text-gray-400', 'transition-colors', 'duration-300',
+                'hover:text-gray-900', 'dark:hover:text-white', 'flex-grow', 'min-h-[50px]',
+                'text-ellipsis', 'overflow-hidden' // Prevent text overflow
             );
             description.textContent = item.description;
             cardBody.appendChild(description);
 
-            // Add to Cart button
-            const addToCartButton = document.createElement('a');
-            addToCartButton.classList.add(
-                'inline-flex',
-                'items-center',
-                'px-3',
-                'py-2',
-                'text-sm',
-                'font-medium',
-                'text-center',
-                'text-white',
-                'bg-blue-700',
-                'rounded-lg',
-                'hover:bg-blue-800',
-                'focus:ring-4',
-                'focus:outline-none',
-                'focus:ring-blue-300',
-                'dark:bg-blue-600',
-                'dark:hover:bg-blue-700',
-                'dark:focus:ring-blue-800',
-                'transition-all', // Transition for button hover effect
-                'duration-300'
-            );
-            addToCartButton.setAttribute('href', item.link);
-            addToCartButton.innerHTML = 'Add to Cart <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>';
-            cardBody.appendChild(addToCartButton);
-
-            // Apply margin-top auto to push content to the bottom
+            // Footer section for price (or any additional info)
             const cardFooter = document.createElement('div');
-            cardFooter.classList.add('mt-auto'); // This will push the footer (description + button) to the bottom of the card
+            cardFooter.classList.add('mt-auto'); // This will push the footer content to the bottom of the card
 
             // Append the card body to the card
             card.appendChild(cardBody);

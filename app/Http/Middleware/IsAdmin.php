@@ -17,12 +17,12 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        // Cek apakah user sudah login dan memiliki status admin
+        // Cek apakah user sudah login dan apakah dia admin
         if (Auth::check() && Auth::user()->is_admin) {
-            return $next($request);
+            return $next($request); // Lanjutkan jika admin
         }
 
-        // Jika bukan admin, redirect ke halaman utama atau ke login
-        return redirect('/')->withErrors(['message' => 'Access denied. Admins only.']);
+        // Jika bukan admin, redirect ke login Brezee
+        return redirect()->route('login'); // Ganti dengan rute login Brezee
     }
 }

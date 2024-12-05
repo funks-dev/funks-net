@@ -26,4 +26,9 @@ class Packet extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function roomPackets()
+    {
+        return $this->hasMany(RoomPacket::class);
+    }
 }

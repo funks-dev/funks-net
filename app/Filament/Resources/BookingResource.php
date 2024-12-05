@@ -70,6 +70,21 @@ class BookingResource extends Resource
                     ->required()
                     ->label('End Time'),
 
+                Forms\Components\TextInput::make('total_payment')
+                    ->label('Total Payment')
+                    ->numeric()
+                    ->prefix('Rp')
+                    ->required(),
+
+                Forms\Components\Select::make('payment_method')
+                    ->label('Payment Method')
+                    ->options([
+                        'cash' => 'Cash',
+                        'credit_card' => 'Credit Card',
+                        'bank_transfer' => 'Bank Transfer'
+                    ])
+                    ->required(),
+
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
@@ -92,6 +107,14 @@ class BookingResource extends Resource
                     ->label('Packets'),
                 Tables\Columns\TextColumn::make('start_time')->label('Start Time'),
                 Tables\Columns\TextColumn::make('end_time')->label('End Time'),
+                Tables\Columns\TextColumn::make('total_payment')
+                    ->label('Total Payment')
+                    ->money('idr')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->label('Payment Method')
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')->label('Status'),
             ])
             ->filters([

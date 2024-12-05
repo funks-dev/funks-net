@@ -18,6 +18,8 @@ return new class extends Migration
             $table->json('packet_ids')->nullable();
             $table->timestamp('start_time'); // Kolom untuk waktu mulai
             $table->timestamp('end_time')->nullable(); // Kolom untuk waktu selesai
+            $table->decimal('total_payment', 10, 2); // Tambahan untuk total pembayaran
+            $table->enum('payment_method', ['cash', 'credit_card', 'bank_transfer']);
             $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
             $table->timestamps(); // Untuk created_at dan updated_at
         });
