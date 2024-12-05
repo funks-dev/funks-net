@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('capacity');
             $table->integer('remaining_capacity')->default(0);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

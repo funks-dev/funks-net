@@ -167,10 +167,10 @@
                      class="overflow-hidden rounded-3xl shadow-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg hover:bg-gray-100 hover:dark:bg-gray-800"
                      onclick="updateCard('{{ strtolower($room->name) }}')">
                     <img src="{{ asset('images/' .
-                ($room->name == 'Regular Room' ? 'regular.png' :
-                ($room->name == 'VIP Room' ? 'vip.png' :
-                ($room->name == 'VVIP Room' ? 'vvip.png' : strtolower($room->name) . '.png'))
-                )) }}"
+                    ($room->name == 'Regular Room' ? 'regular.png' :
+                    ($room->name == 'VIP Room' ? 'vip.png' :
+                    ($room->name == 'VVIP Room' ? 'vvip.png' : strtolower($room->name) . '.png'))
+                    )) }}"
                          alt="{{ $room->name }}"
                          class="w-[430px] h-[200px] object-cover transition-transform duration-300 hover:scale-105">
                     <p class="text-center mt-2 text-lg font-medium text-gray-700 dark:text-gray-300 transition-colors duration-300 hover:text-gray-900 dark:hover:text-white">
@@ -178,8 +178,18 @@
                     </p>
                 </div>
             @empty
-                <div class="text-center py-8 w-full">
-                    <p>No rooms available</p>
+                <div class="w-full text-center py-12">
+                    <div class="mb-4">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        Ruangan Tidak Tersedia
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                        Ruangan sedang dalam pemeliharaan atau pembaruan. Silakan hubungi staff kami untuk informasi ketersediaan ruangan.
+                    </p>
                 </div>
             @endforelse
         </div>

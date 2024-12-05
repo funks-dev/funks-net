@@ -44,6 +44,26 @@ class Booking extends Model
         'total_payment' => 'decimal:2',
     ];
 
+    protected $dates = [
+        'start_time',
+        'end_time'
+    ];
+
+    public function getFormattedStartTimeAttribute(): string
+    {
+        return $this->start_time->format('d M Y H:i');
+    }
+
+    public function getFormattedTotalPaymentAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_payment, 2);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', ['pending', 'confirmed']);
+    }
+
     public function saveWithPackets(array $data): Booking
     {
         Log::info('Saving booking with packets:', $data);
@@ -84,24 +104,34 @@ class Booking extends Model
     {
         parent::boot();
 
+        // Ketika booking baru dibuat
         static::created(function (Booking $booking) {
-            $room = $booking->room;
-            if ($room) {
-                $room->recalculateRemainingCapacity();
+            if ($booking->status === 'pending') {
+                $booking->room->decrementRemainingCapacity();
             }
         });
 
+        // Ketika status booking berubah
         static::updated(function (Booking $booking) {
-            $room = $booking->room;
-            if ($room) {
-                $room->recalculateRemainingCapacity();
+            if ($booking->isDirty('status')) {
+                $oldStatus = $booking->getOriginal('status');
+                $newStatus = $booking->status;
+
+                // Jika status berubah menjadi pending/confirmed
+                if (in_array($newStatus, ['pending', 'confirmed']) && !in_array($oldStatus, ['pending', 'confirmed'])) {
+                    $booking->room->decrementRemainingCapacity();
+                }
+                // Jika status berubah dari pending/confirmed ke status lain
+                elseif (!in_array($newStatus, ['pending', 'confirmed']) && in_array($oldStatus, ['pending', 'confirmed'])) {
+                    $booking->room->incrementRemainingCapacity();
+                }
             }
         });
 
+        // Ketika booking dihapus
         static::deleted(function (Booking $booking) {
-            $room = $booking->room;
-            if ($room) {
-                $room->recalculateRemainingCapacity();
+            if (in_array($booking->status, ['pending', 'confirmed'])) {
+                $booking->room->incrementRemainingCapacity();
             }
         });
     }

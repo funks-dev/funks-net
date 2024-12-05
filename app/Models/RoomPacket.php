@@ -16,6 +16,10 @@ class RoomPacket extends Model
         'price',
     ];
 
+    protected $casts = [
+        'price' => 'decimal:2'
+    ];
+
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);

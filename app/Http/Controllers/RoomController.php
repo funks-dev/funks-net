@@ -15,6 +15,15 @@ use Carbon\Carbon;
 
 class RoomController extends Controller
 {
+    private Room $room;
+    private Packet $packet;
+
+    public function __construct(Room $room, Packet $packet)
+    {
+        $this->room = $room;
+        $this->packet = $packet;
+    }
+
     public function index()
     {
         $rooms = Room::all();
@@ -127,7 +136,11 @@ class RoomController extends Controller
 
     private function checkRoomAvailability($roomId, $startTime, $endTime)
     {
-        $conflictingBookings = Booking::where('room_id', $roomId)
+        $startTime = Carbon::parse($startTime);
+        $endTime = Carbon::parse($endTime);
+
+        return !Booking::where('room_id', $roomId)
+            ->where('status', '!=', 'cancelled')
             ->where(function ($query) use ($startTime, $endTime) {
                 $query->whereBetween('start_time', [$startTime, $endTime])
                     ->orWhereBetween('end_time', [$startTime, $endTime])
@@ -136,9 +149,6 @@ class RoomController extends Controller
                             ->where('end_time', '>=', $endTime);
                     });
             })
-            ->where('status', '!=', 'cancelled')
-            ->count();
-
-        return $conflictingBookings === 0;
+            ->exists();
     }
 }

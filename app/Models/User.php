@@ -4,9 +4,15 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-class User extends Authenticatable
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Session;
+
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -46,9 +52,30 @@ class User extends Authenticatable
         ];
     }
 
-    public function canAccessPanel(string $panel): bool
+    public function canAccessPanel(Panel $panel): bool
     {
-        // Implement your logic here
+        if (!$this->is_admin || !$this->hasVerifiedEmail()) {
+            // Menggunakan Filament Notification
+            Notification::make()
+                ->danger()
+                ->title('Access Denied')
+                ->body('You are not authorized to access this area.')
+                ->send();
+
+            // Return false untuk mencegah akses
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isAdmin(): bool
+    {
         return $this->is_admin;
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
     }
 }

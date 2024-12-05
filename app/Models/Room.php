@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log; // Tambahkan import Log facade
 
 class Room extends Model
 {
     use HasFactory;
+
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -36,14 +39,13 @@ class Room extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function decrementRemainingCapacity(int $decrement, bool $allowNegative = false): void
+    public function decrementRemainingCapacity(int $decrement = 1): void
     {
-        $newRemainingCapacity = $allowNegative
-            ? $this->remaining_capacity - $decrement
-            : max($this->remaining_capacity - $decrement, 0);
+        $newRemainingCapacity = max($this->remaining_capacity - $decrement, 0);
 
         Log::info('Decrementing remaining capacity:', [
             'room_id' => $this->id,
+            'room_name' => $this->name,
             'current_remaining_capacity' => $this->remaining_capacity,
             'decrement_by' => $decrement,
             'new_remaining_capacity' => $newRemainingCapacity,
@@ -52,12 +54,13 @@ class Room extends Model
         $this->update(['remaining_capacity' => $newRemainingCapacity]);
     }
 
-    public function incrementRemainingCapacity(int $increment): void
+    public function incrementRemainingCapacity(int $increment = 1): void
     {
         $newRemainingCapacity = min($this->remaining_capacity + $increment, $this->capacity);
 
         Log::info('Incrementing remaining capacity:', [
             'room_id' => $this->id,
+            'room_name' => $this->name,
             'current_remaining_capacity' => $this->remaining_capacity,
             'increment_by' => $increment,
             'new_remaining_capacity' => $newRemainingCapacity,
@@ -107,23 +110,25 @@ class Room extends Model
 
     public function recalculateRemainingCapacity(): void
     {
-        // Hitung jumlah paket aktif langsung dari database
-        $totalUsedCapacity = \DB::table('bookings')
-            ->join('booking_packets', 'bookings.id', '=', 'booking_packets.booking_id')
-            ->where('bookings.room_id', $this->id)
-            ->whereIn('bookings.status', ['pending', 'confirmed'])
+        // Hitung booking yang aktif (pending atau confirmed)
+        $activeBookings = $this->bookings()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where(function($query) {
+                $query->where('end_time', '>', now())
+                    ->orWhereNull('end_time');
+            })
             ->count();
 
-        $newRemainingCapacity = max($this->capacity - $totalUsedCapacity, 0);
+        $newRemainingCapacity = max($this->capacity - $activeBookings, 0);
 
-        Log::info('Recalculating room remaining capacity via query:', [
+        Log::info('Recalculating room remaining capacity:', [
             'room_id' => $this->id,
+            'room_name' => $this->name,
             'total_capacity' => $this->capacity,
-            'total_used_capacity' => $totalUsedCapacity,
+            'active_bookings' => $activeBookings,
             'new_remaining_capacity' => $newRemainingCapacity,
         ]);
 
-        // Update langsung ke database tanpa load model
         $this->update(['remaining_capacity' => $newRemainingCapacity]);
     }
 
@@ -145,12 +150,19 @@ class Room extends Model
     {
         parent::boot();
 
+        // Set initial remaining capacity
         static::creating(function (Room $room) {
             if (!$room->remaining_capacity) {
                 $room->remaining_capacity = $room->capacity;
             }
         });
-    }
 
+        // Update capacity when related bookings change
+        static::updating(function (Room $room) {
+            if ($room->isDirty('capacity')) {
+                $room->recalculateRemainingCapacity();
+            }
+        });
+    }
 
 }

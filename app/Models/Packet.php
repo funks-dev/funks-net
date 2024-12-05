@@ -18,9 +18,9 @@ class Packet extends Model
             ->withTimestamps();
     }
 
-    public function users(): HasMany
+    public function bookings(): BelongsToMany
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(Booking::class, 'booking_packets');
     }
 
     protected $fillable = [
